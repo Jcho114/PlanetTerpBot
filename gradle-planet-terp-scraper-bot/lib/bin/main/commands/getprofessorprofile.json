@@ -1,0 +1,12 @@
+{
+    "name": "getprofessorprofile",
+    "description": "Gets professor profile",
+    "options": [
+        {
+            "name": "professorname",
+            "description": "Professor name",
+            "type": 3,
+            "required": true
+        }
+    ]
+}
