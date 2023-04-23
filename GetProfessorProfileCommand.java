@@ -1,8 +1,14 @@
 package gradle.planet.terp.scraper.bot.commands;
 
+import java.time.Instant;
+
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
 import discord4j.core.object.command.ApplicationCommandInteractionOption;
 import discord4j.core.object.command.ApplicationCommandInteractionOptionValue;
+import discord4j.core.object.entity.Message;
+import discord4j.core.spec.EmbedCreateSpec;
+import discord4j.core.spec.InteractionReplyEditSpec;
+import discord4j.rest.util.Color;
 import gradle.planet.terp.scraper.bot.scraper.PlanetTerpWebScraper;
 import gradle.planet.terp.scraper.bot.scraper.ProfessorProfile;
 import reactor.core.publisher.Mono;
@@ -25,33 +31,53 @@ public class GetProfessorProfileCommand implements SlashCommand {
 		
 		// The function then defers the reply in order to extend the
 		// response window of the bot
-		return event.deferReply().then(Mono.fromCallable(() -> {
+		Mono<Message> result = event.deferReply().then(Mono.fromCallable(() -> {
 			// Mono.fromCallable is used to create instances of scraper
 			// asynchronously
-			System.out.println("Starting scraper");
 			PlanetTerpWebScraper scraper;
 			scraper = new PlanetTerpWebScraper(professorName);
 			return scraper;
 		}))
 		// Now each instance of the scraper creates a professor profile
 		.flatMap(scraper -> {
-			System.out.println("Starting professor profile creation");
 			if (scraper.hasError()) {
-				System.out.println("Returning null checked-response");
 				return event.editReply("Invalid input from user...");
 			}
-			System.out.println("Creating profile");
 			ProfessorProfile professorProfile = scraper.createProfile();
 			scraper.close();
-			System.out.println("Returning response");
+			
+			EmbedCreateSpec embed = createEmbed(professorProfile.getName(),
+												professorProfile.getRating(),
+												professorProfile.getCoursesAsString());
+			InteractionReplyEditSpec editSpec = InteractionReplyEditSpec.builder()
+					.addEmbed(embed)
+					.build();
+			
+			if (scraper.hasError())
+				return event.editReply("Professor profile is empty...");
 			// It then edits the original deferred reply to the
 			// professorProfile
-			return event.editReply(professorProfile.toString());
+			return event.editReply(editSpec);
 		})
 		// subscribeOn is used in order to specify the scheduler
 		// that the method runs on, which in this case is an
 		// bounded elastic pool that avoids blocking the main
 		// thread of the application
 		.subscribeOn(Schedulers.boundedElastic());
+		
+		return result;
+	}
+	
+	// Add url later
+	private EmbedCreateSpec createEmbed(String professorName, double professorRating,
+										String professorCourses) {
+		EmbedCreateSpec embed = EmbedCreateSpec.builder()
+				.color(Color.RED)
+				.title(professorName)
+				.addField("Rating", String.valueOf(professorRating) + "/5.00", false)
+				.addField("Courses", professorCourses, false)
+				.timestamp(Instant.now())
+				.build();
+		return embed;
 	}
 }
