@@ -1,4 +1,4 @@
-# PlanetTerpWebScraperBot
+# PlanetTerpBot
 
 Discord bot built with Java that provides information about certain professors at UMD.
 
