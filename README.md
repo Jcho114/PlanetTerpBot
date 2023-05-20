@@ -6,5 +6,5 @@ Utilizes Discord4j and Selenium.
 
 Actual code in the directory:
 ```
-/PlanetTerpWebScraperBot/gradle-planet-terp-scraper-bot/lib/src/main/java/gradle/planet/terp/scraper/bot/
+/PlanetTerpBot/gradle-planet-terp-scraper-bot/lib/src/main/java/gradle/planet/terp/scraper/bot/
 ```
