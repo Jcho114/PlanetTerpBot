@@ -2,7 +2,7 @@
 
 Discord bot built with Java that provides information about certain professors at UMD.
 
-Utilizes Discord4j and Selenium.
+Utilizes Discord4j, Selenium, and PlanetTerp API.
 
 Actual code in the directory:
 ```
