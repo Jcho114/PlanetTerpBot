@@ -1,13 +1,13 @@
 package gradle.planet.terp.scraper.bot.scraper;
 
-import java.util.Set;
+import java.util.Collection;
 
 public class ProfessorProfile {
 	private String name;
 	private double rating;
-	private Set<String> courses;
+	private Collection<String> courses;
 	
-	public ProfessorProfile(String name, double rating, Set<String> courses) {
+	public ProfessorProfile(String name, double rating, Collection<String> courses) {
 		this.name = name;
 		this.rating = rating;
 		this.courses = courses;
@@ -21,8 +21,12 @@ public class ProfessorProfile {
 		return rating;
 	}
 	
-	public Set<String> getCourses() {
+	public Collection<String> getCourses() {
 		return courses;
+	}
+	
+	public String getCoursesAsString() {
+		return getCourseList();
 	}
 	
 	@Override
@@ -38,11 +42,12 @@ public class ProfessorProfile {
 	
 	private String getCourseList() {
 		String result = "";
-		int i = 1;
-		for (String course : courses) {
-			result += course + " ";
-			if (i++ % 5 == 0) {
-				result += "\n";
+		if (!courses.isEmpty()) {
+			int i = 1;
+			for (Object course : courses) {
+				result += course + " ";
+				if (i++ % 5 == 0)
+					result += "\n";
 			}
 		}
 		return result;

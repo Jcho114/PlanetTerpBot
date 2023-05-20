@@ -11,6 +11,7 @@ plugins {
     id 'java-library'
 }
 
+apply plugin: 'project-report'
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -47,6 +48,9 @@ dependencies {
     implementation 'org.htmlunit:htmlunit:3.0.0'
     implementation 'org.seleniumhq.selenium:selenium-java:3.141.59'
     implementation 'io.github.bonigarcia:webdrivermanager:5.3.2'
+    
+    // This dependency is used to parse JSON
+    implementation 'org.json:json:20230227'
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

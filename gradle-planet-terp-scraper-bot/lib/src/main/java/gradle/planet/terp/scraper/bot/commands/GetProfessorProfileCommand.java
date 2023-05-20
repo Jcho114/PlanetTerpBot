@@ -9,10 +9,10 @@ import discord4j.core.object.entity.Message;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.InteractionReplyEditSpec;
 import discord4j.rest.util.Color;
-import gradle.planet.terp.scraper.bot.scraper.PlanetTerpWebScraper;
 import gradle.planet.terp.scraper.bot.scraper.ProfessorProfile;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import gradle.planet.terp.scraper.bot.api.API;
 
 // Fix to allow it to work with multiple calls at once
 public class GetProfessorProfileCommand implements SlashCommand {
@@ -32,19 +32,19 @@ public class GetProfessorProfileCommand implements SlashCommand {
 		// The function then defers the reply in order to extend the
 		// response window of the bot
 		Mono<Message> result = event.deferReply().then(Mono.fromCallable(() -> {
-			// Mono.fromCallable is used to create instances of scraper
-			// asynchronously
-			PlanetTerpWebScraper scraper;
-			scraper = new PlanetTerpWebScraper(professorName);
-			return scraper;
+			ProfessorProfile professorProfile;
+			professorProfile = API.createProfessorProfile(professorName);
+			return professorProfile;
 		}))
 		// Now each instance of the scraper creates a professor profile
-		.flatMap(scraper -> {
-			if (scraper.hasError()) {
-				return event.editReply("Invalid input from user...");
+		.flatMap(professorProfile -> {
+			if (professorProfile.getName().equals("Invalid")) {
+				EmbedCreateSpec errorEmbed = createErrorEmbed();
+				InteractionReplyEditSpec errorEditSpec = InteractionReplyEditSpec.builder()
+						.addEmbed(errorEmbed)
+						.build();
+				return event.editReply(errorEditSpec);
 			}
-			ProfessorProfile professorProfile = scraper.createProfile();
-			scraper.close();
 			
 			EmbedCreateSpec embed = createEmbed(professorProfile.getName(),
 												professorProfile.getRating(),
@@ -53,8 +53,6 @@ public class GetProfessorProfileCommand implements SlashCommand {
 					.addEmbed(embed)
 					.build();
 			
-			if (scraper.hasError())
-				return event.editReply("Professor profile is empty...");
 			// It then edits the original deferred reply to the
 			// professorProfile
 			return event.editReply(editSpec);
@@ -78,6 +76,15 @@ public class GetProfessorProfileCommand implements SlashCommand {
 				.addField("Courses", professorCourses, false)
 				.timestamp(Instant.now())
 				.build();
+		return embed;
+	}
+	
+	private EmbedCreateSpec createErrorEmbed() {
+		EmbedCreateSpec embed = EmbedCreateSpec.builder()
+		.color(Color.RED)
+		.title("Invalid Input")
+		.timestamp(Instant.now())
+		.build();
 		return embed;
 	}
 }

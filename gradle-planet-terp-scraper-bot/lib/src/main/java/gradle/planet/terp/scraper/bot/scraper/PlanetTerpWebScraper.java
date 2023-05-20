@@ -41,19 +41,25 @@ public class PlanetTerpWebScraper {
 	}
 	
 	public ProfessorProfile createProfile() {
-		String professorName = driver.findElement(By.className("professor-header")).getText();
-		double professorRating = Double.valueOf(driver.findElement(By.id("professor_rating")).getText());
-
-		List<WebElement> professorCoursesBeforeFilter = driver.findElements(By.tagName("a"));
-		List<String> courseListFilter = getCourseList();
+		String professorName = "";
+		double professorRating = 0.0;
 		Set<String> professorCourses = new TreeSet<>();
-		
-		for (WebElement element : professorCoursesBeforeFilter) {
-			String elementText = element.getText();
+		try {
+			professorName = driver.findElement(By.className("professor-header")).getText();
+			professorRating = Double.valueOf(driver.findElement(By.id("professor_rating")).getText());
+	
+			List<WebElement> professorCoursesBeforeFilter = driver.findElements(By.tagName("a"));
+			List<String> courseListFilter = getCourseList();
 			
-			if (elementText.length() >= 4 && courseListFilter.contains(elementText.substring(0, 4))) {
-				professorCourses.add(elementText);
+			for (WebElement element : professorCoursesBeforeFilter) {
+				String elementText = element.getText();
+				
+				if (elementText.length() >= 4 && courseListFilter.contains(elementText.substring(0, 4))) {
+					professorCourses.add(elementText);
+				}
 			}
+		} catch (Exception e) {
+			error = true;
 		}
 		
 		return new ProfessorProfile(professorName, professorRating, professorCourses);

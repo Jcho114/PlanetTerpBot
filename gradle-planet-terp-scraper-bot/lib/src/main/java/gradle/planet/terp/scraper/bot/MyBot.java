@@ -33,7 +33,7 @@ public class MyBot {
 		} catch (Exception e) {
 			LOGGER.error("Error trying to register commands", e);
 		}
-		
+				
 		// Registers slash command listener
 		client.on(ChatInputInteractionEvent.class, SlashCommandListener::handle)
 			.then(client.onDisconnect())
